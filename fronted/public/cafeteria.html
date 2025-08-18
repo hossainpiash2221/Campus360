@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus360 - Cafeteria</title>
+  <!-- <script src="script/admin.js"></script> -->
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.23/dist/full.min.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // document.addEventListener("DOMContentLoaded", function () {
+    //   // Simulated real-time updates for cafeteria wait times
+    //   setInterval(() => {
+    //     document.getElementById("cafeteria-status").textContent = "Estimated wait time: " + (Math.floor(Math.random() * 10) + 5) + " mins";
+    //   }, 5000);
+    // });
+  </script>
+</head>
+
+<body class="bg-[#5800ff] text-white glass">
+  <!-- Navbar -->
+  <div class="bg-[#300386] bg-opacity-75 fixed w-full z-40 mb-12  shadow-md">
+    <nav class="container mx-auto p-4 text-white flex justify-evenly items-center ">
+      <h1 class="text-2xl font-bold">Campus360 <br> <span class="ml-3">Solution</span></h1>
+      <ul class="flex space-x-4">
+        <li><a href="index.html" class="hover:text-gray-300">Main Manu</a></li>
+        <li><a href="cafeteria.html" class="hover:text-gray-300">Cafeteria</a></li>
+        <li><a href="trackBus.html" class="hover:text-gray-300">Transport</a></li>
+        <li><a href="#clubs" class="hover:text-gray-300">Clubs</a></li>
+        <li><a href="#communication" class="hover:text-gray-300">Communication Hub</a></li>
+      </ul>
+      <div class="flex space-x-4">
+        <button> <img class="w-6" src="search.png" alt=""></button>
+        <button>Login</button>
+        <button class="btn btn-outline glass text-white">Register Now</button>
+      </div>
+    </nav>
+  </div>
+  <br>
+  <br>
+
+
+
+  <div class=" bg-[url('bg-cafe.jpg')] bg-fixed bg-cover bg-center">
+
+
+    <!-- Hero Section -->
+    <section class="h-screen flex items-center justify-center text-center">
+      <div class="bg-[#300386] bg-opacity-75 p-10 rounded-lg text-white animate-fade-in-up">
+        <h2 class="text-4xl font-bold">Food request for next week</h2>
+        <p class="mt-4 text-2xl">
+          Please submit your food request for next week by selecting your desired meals from our menu.
+        </p>
+        <a href="FoodRequest.html"
+          class="mt-6 inline-block px-6 py-3 bg-[#1800ff] hover:bg-blue-700 rounded-lg text-white">Get Started</a>
+      </div>
+    </section>
+    
+    <style>
+      @keyframes fade-in-up {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    
+      .animate-fade-in-up {
+        animation: fade-in-up 0.8s ease-out forwards;
+      }
+    </style>
+    
+
+  </div>
+  <!-- order  -->
+  <div class="container mx-auto p-10  shadow-md">
+    
+    <div class="flex items-center space-x-4 justify-between mt-12">
+      <input id="searchInput" type="text" placeholder="Search in menu"
+      class="focus:outline focus:bg-yellow-100 text-gray-600 rounded-lg px-4 py-2 text-sm w-72">
+    
+    <ul class="flex space-x-4 text-sm font-semibold">
+      <li><button class="category-btn rounded-lg p-3 hover:outline focus:border" data-category="All">View All</button></li>
+      <li><button class="category-btn rounded-lg p-3 hover:outline focus:border" data-category="Breakfast">Breakfast</button></li>
+      <li><button class="category-btn rounded-lg p-3 hover:outline focus:border" data-category="Morning Snaks">Morning Snaks</button></li>
+      <li><button class="category-btn rounded-lg p-3 hover:outline focus:border" data-category="Lunch">Lunch</button></li>
+      <li><button class="category-btn rounded-lg p-3 hover:outline focus:border" data-category="Evening Snaks">Evening Snaks</button></li>
+      <li><button class="category-btn rounded-lg p-3 hover:outline focus:border" data-category="Food Request">Food Request</button></li>
+    </ul>
+    
+    </div>
+  </div>
+  <!-- main section  -->
+>
+<div class="flex pt-20 px-6 container mx-auto">
+  <!-- Left Section: Food Items -->
+  <div class="w-3/4 pr-4">
+    <h2 class="text-2xl font-bold mb-2">🔥 Available Foods</h2>
+    <p class="mb-4">Choice your desire meals</p>
+
+    <div id="foodList" class="grid grid-cols-2 gap-4">
+      <!-- Dynamically generated food items will appear here -->
+    </div>
+  </div>
+
+  <!-- Right Section: Order Summary (Sidebar) -->
+  <div class="w-1/4 bg-[#300386] text-white shadow-md p-4 rounded-lg h-[500px] overflow-y-auto my-auto">
+    <h2 class="text-lg font-bold text-center">Your Cart</h2>
+    <div class="flex justify-between items-center my-2">
+      <button class="btn glass px-4 py-2 rounded-lg text-sm text-white">Standard (30 - 45 mins)</button>
+      <button id="pickupBtn" class="btn glass px-4 py-2 rounded-lg text-sm text-white">Pick-up</button>
+    </div>
+
+    <!-- Pick-up Status -->
+    <div id="pickupStatus" class="hidden p-2 rounded-md mt-2">
+      <p class="text-sm font-semibold">Estimated Waiting Time: <span id="waitingTime">10</span> mins</p>
+      <p class="text-sm">People in queue: <span id="queueCount">5</span></p>
+    </div>
+
+    <hr class="my-2">
+
+    <!-- Cart Items -->
+    <h3 class="font-semibold mb-2">Your Items</h3>
+    <div id="cartItems" class="flex flex-col space-y-2">
+      <!-- Cart items will be displayed here -->
+    </div>
+
+    <hr class="my-2">
+    <h3 class="font-semibold mb-2">Popular with your order</h3>
+    <div class="flex space-x-2 overflow-x-auto">
+      <!-- Dynamically display popular items here -->
+    </div>
+
+    <hr class="my-2">
+    <div>
+      <div class="flex justify-between p-4">
+        <div>
+          <h3 class="font-semibold">Total</h3>
+          <p class="text-lg font-bold" id="totalPrice">Tk 0</p>
+        </div>
+        <input type="time" class="p-2 text-gray-600 border rounded ml-2" required>
+      </div>
+
+      <div class="text-center">
+        <!-- <button class="btn text-white btn-primary bg-[#1800ff] hover:bg-blue-700">Place Order</button> -->
+        <button onclick="placeOrder()" id="placeOrderBtn" class="btn text-white btn-primary bg-[#1800ff] hover:bg-blue-700">Place Order</button>
+
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  document.querySelector(".btn-primary").addEventListener("click", function () {
+    const userOrderId = prompt("Enter your Order ID:");
+    const pickupTime = document.querySelector("input[type='time']").value;
+    
+
+    if (!userOrderId || !pickupTime) {
+      alert("Please provide Order ID and Pickup Time.");
+      return;
+    }
+
+    const total = cart.reduce((acc, item) => acc + item.price, 0);
+    const order = {
+      id: userOrderId,
+      time: new Date().toLocaleString(),
+      pickupTime,
+      items: [...cart],
+      total,
+      status: "Pending"
+    };
+
+    const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+    orders.push(order);
+    localStorage.setItem("orders", JSON.stringify(orders));
+
+    alert("Order placed successfully!");
+    cart = [];
+    updateCart();
+  });
+  </script>
+  
+  <script>
+    let cart = [];
+    let allFoods = [];
+    
+    function loadFoodsFromLocalStorage() {
+      allFoods = JSON.parse(localStorage.getItem("foods") || "[]");
+      displayFoods(allFoods); // Initial view (all foods)
+    }
+    
+    function displayFoods(foodArray) {
+      const foodList = document.getElementById("foodList");
+      foodList.innerHTML = ""; // Clear
+    
+      foodArray.forEach(food => {
+        const foodCard = document.createElement("div");
+        foodCard.className = "bg-[#300386] p-4 shadow-md rounded-lg flex items-center space-x-4 justify-between";
+    
+        foodCard.innerHTML = `
+          <div>
+            <h3 class="text-lg font-semibold">${food.name}</h3>
+            <p class="text-sm">from Tk <span class="text-yellow-300 font-semibold"> ${food.price}</span></p>
+            <p class="text-sm">Available for ${food.category}</p>
+             <p class="text-xs text-gray-500">Available: ${food.quantity}</p>
+          </div>
+          <div class="flex gap-4">
+            <img src="${food.image}" alt="${food.name}" class="w-16 h-16 rounded-lg">
+            <button onclick="addToCart('${food.name}', ${food.price})" class="bg-[#5800ff] p-2 rounded-lg text-lg">+</button>
+          </div>
+        `;
+        foodList.appendChild(foodCard);
+      });
+    }
+    
+    function addToCart(foodName, price) {
+      const food = { foodName, price };
+      const exists = cart.find(item => item.foodName === foodName);
+      if (exists) {
+        alert("Already in cart.");
+        return;
+      }
+      cart.push(food);
+      updateCart();
+    }
+
+    function placeOrder() {
+  if (cart.length === 0) {
+    alert("Your cart is empty.");
+    return;
+  }
+
+  const foods = JSON.parse(localStorage.getItem("foods") || "[]");
+  let outOfStock = [];
+
+  // Reduce quantity for each item in cart
+  cart.forEach(item => {
+    const foodItem = foods.find(f => f.name === item.foodName);
+    if (foodItem && foodItem.quantity > 0) {
+      foodItem.quantity -= 1;
+    } else {
+      outOfStock.push(item.foodName);
+    }
+  });
+
+  // Alert for out-of-stock items
+  if (outOfStock.length > 0) {
+    alert(`The following items are out of stock or unavailable: ${outOfStock.join(", ")}`);
+    return;
+  }
+
+  // Save updated food list
+  localStorage.setItem("foods", JSON.stringify(foods));
+
+  // Clear cart
+  cart = [];
+  updateCart();
+  displayFoods(foods);
+}
+
+    
+    function updateCart() {
+      const cartItems = document.getElementById("cartItems");
+      const totalPriceElement = document.getElementById("totalPrice");
+      cartItems.innerHTML = "";
+      let total = 0;
+    
+      cart.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "flex justify-between";
+        div.innerHTML = `<p>${item.foodName}</p><p class="font-semibold">Tk ${item.price}</p>`;
+        cartItems.appendChild(div);
+        total += item.price;
+      });
+    
+      totalPriceElement.innerText = `Tk ${total}`;
+    }
+    
+    function filterByCategory(category) {
+      if (category === "All") {
+        displayFoods(allFoods);
+      } else {
+        const filtered = allFoods.filter(food => food.category.toLowerCase() === category.toLowerCase());
+        displayFoods(filtered);
+      }
+    }
+    
+    function searchMenu() {
+      const query = document.getElementById("searchInput").value.toLowerCase();
+      const result = allFoods.filter(food => food.name.toLowerCase().includes(query));
+      displayFoods(result);
+    }
+    
+    // Init
+    document.addEventListener("DOMContentLoaded", () => {
+      loadFoodsFromLocalStorage();
+    
+      // Add click listeners to category buttons
+      document.querySelectorAll(".category-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const category = btn.getAttribute("data-category");
+          filterByCategory(category);
+        });
+      });
+    
+      // Search input event
+      document.getElementById("searchInput").addEventListener("input", searchMenu);
+    });
+    </script>
+    
+
+
+
+  <!-- items -->
+  <h1 class="text-2xl font-bold mb-2 text-center mt-10 shadow-md container mx-auto p-4">Awatied Peoples</h1>
+  <div class="w-2/4 overflow-x-auto container mx-auto h-[500px] overflow-y-auto my-auto shadow-md">
+
+    <table class="table">
+      <!-- head -->
+      <thead>
+        <tr class="text-white  bg-[#300386] bg-opacity-75 rounded-lg">
+          <th>
+
+          </th>
+          <th>Id</th>
+          <th>Items</th>
+          <th>Pickup time</th>
+          <th>Waiting Time</th>
+          <th>Status</th>
+          <th>Need to Pay</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="orderTableBody" class="h-[500px] my-auto shadow-md overflow-x-auto overflow-y-auto">
+        <!-- JS will insert rows here -->
+      </tbody>
+      
+      
+      
+    </table>
+  </div>
+ 
+  <script>
+    function loadOrders() {
+      const orderTableBody = document.getElementById("orderTableBody");
+      orderTableBody.innerHTML = "";
+  
+      const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+  
+      const now = new Date();
+  
+      orders.sort((a, b) => new Date(a.pickupTime) - new Date(b.pickupTime)); // Optional sorting by pickup
+  
+      orders.forEach((order, index) => {
+        const orderTime = new Date(order.time);
+        const pickupTime = new Date(`${now.toDateString()} ${order.pickupTime}`);
+        const timeDiffSeconds = Math.floor((now - orderTime) / 1000);
+        const waitingMinutes = Math.max(Math.ceil((pickupTime - now) / 60000), 0);
+        const editable = timeDiffSeconds <= 60;
+  
+        const tr = document.createElement("tr");
+        tr.className = "glass rounded-lg";
+  
+        tr.innerHTML = `
+          <th>${index + 1}</th>
+          <td>
+            <div class="flex items-center gap-3">
+              <ul>${order.id}</ul>
+            </div>
+          </td>
+          <td>
+            <ul>${order.items.map(item => `<li>${item.foodName}</li>`).join("")}</ul>
+          </td>
+          <td>${order.pickupTime}</td>
+          <td>${waitingMinutes} min</td>
+          <td>${order.status}</td>
+          <th class="flex items-center gap-2">
+            <button class="btn btn-ghost btn-xs">${order.total}/=</button>
+            ${
+              editable
+                ? `<button onclick="editOrder('${order.id}')" class="btn btn-sm btn-warning text-white">Edit</button>`
+                : `<span class="text-xs text-gray-400">Edit expired</span>`
+            }
+          </th>
+        `;
+  
+        orderTableBody.appendChild(tr);
+      });
+    }
+  
+    function editOrder(orderId) {
+      alert("Edit logic for Order ID: " + orderId);
+      // Add update logic or modal here
+    }
+  
+    loadOrders();
+  </script>
+  
+  
+  
+  
+
+
+  <!-- Footer -->
+  <hr class="mt-10">
+  <section class="container mx-auto">
+    <footer class="footer text-white p-10 justify-evenly">
+      <nav>
+        <h6 class="footer-title">Services</h6>
+        <a class="link link-hover">Branding</a>
+        <a class="link link-hover">Design</a>
+        <a class="link link-hover">Marketing</a>
+        <a class="link link-hover">Advertisement</a>
+      </nav>
+      <nav>
+        <h6 class="footer-title">Company</h6>
+        <a class="link link-hover">About us</a>
+        <a class="link link-hover">Contact</a>
+        <a class="link link-hover">Jobs</a>
+        <a class="link link-hover">Press kit</a>
+      </nav>
+      <nav>
+        <h6 class="footer-title">Legal</h6>
+        <a class="link link-hover">Terms of use</a>
+        <a class="link link-hover">Privacy policy</a>
+        <a class="link link-hover">Cookie policy</a>
+      </nav>
+    </footer>
+    <footer class="footer  border-base-300 border-t px-10 py-4">
+      <aside class="grid-flow-col items-center">
+        <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd"
+          clip-rule="evenodd" class="fill-current">
+          <path
+            d="M22.672 15.226l-2.432.811.841 2.515c.33 1.019-.209 2.127-1.23 2.456-1.15.325-2.148-.321-2.463-1.226l-.84-2.518-5.013 1.677.84 2.517c.391 1.203-.434 2.542-1.831 2.542-.88 0-1.601-.564-1.86-1.314l-.842-2.516-2.431.809c-1.135.328-2.145-.317-2.463-1.229-.329-1.018.211-2.127 1.231-2.456l2.432-.809-1.621-4.823-2.432.808c-1.355.384-2.558-.59-2.558-1.839 0-.817.509-1.582 1.327-1.846l2.433-.809-.842-2.515c-.33-1.02.211-2.129 1.232-2.458 1.02-.329 2.13.209 2.461 1.229l.842 2.515 5.011-1.677-.839-2.517c-.403-1.238.484-2.553 1.843-2.553.819 0 1.585.509 1.85 1.326l.841 2.517 2.431-.81c1.02-.33 2.131.211 2.461 1.229.332 1.018-.21 2.126-1.23 2.456l-2.433.809 1.622 4.823 2.433-.809c1.242-.401 2.557.484 2.557 1.838 0 .819-.51 1.583-1.328 1.847m-8.992-6.428l-5.01 1.675 1.619 4.828 5.011-1.674-1.62-4.829z">
+          </path>
+        </svg>
+        <p>
+          ACME Industries Ltd.
+          <br />
+          Providing reliable tech since 1992
+        </p>
+      </aside>
+      <nav class="md:place-self-center md:justify-self-end">
+        <div class="grid grid-flow-col gap-4">
+          <a>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-current">
+              <path
+                d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z">
+              </path>
+            </svg>
+          </a>
+          <a>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-current">
+              <path
+                d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z">
+              </path>
+            </svg>
+          </a>
+          <a>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-current">
+              <path
+                d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z">
+              </path>
+            </svg>
+          </a>
+        </div>
+      </nav>
+    </footer>
+  </section>
+  <script>
+    // Handling Pick-up button click
+    document.getElementById("pickupBtn").addEventListener("click", function () {
+      document.getElementById("pickupStatus").classList.toggle("hidden");
+
+      // Simulate dynamic queue updates
+      let waitingTime = 10;  // Base waiting time
+      let queueCount = 5;     // Initial queue size
+
+      function updateQueue() {
+        if (queueCount > 0) {
+          queueCount--;
+          waitingTime -= 2;
+          document.getElementById("queueCount").textContent = queueCount;
+          document.getElementById("waitingTime").textContent = waitingTime;
+
+          setTimeout(updateQueue, 5000); // Update every 5 seconds
+        }
+      }
+      updateQueue();
+    });
+  </script>
+</body>
+
+</html>

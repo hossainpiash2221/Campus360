@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campus360 - Admin Transport</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.23/dist/full.min.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes fade-in-up {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fade-in-up {
+      animation: fade-in-up 0.8s ease-out forwards;
+    }
+  </style>
+</head>
+
+<body class="bg-[#5800ff] text-white">
+  <div class="min-h-screen bg-[url('bus_background.png')] bg-fixed bg-cover bg-center">
+    <!-- Navbar -->
+    <div class="bg-[#5800ff] bg-opacity-75 fixed w-full z-40 shadow-md">
+      <nav class="container mx-auto p-4 flex justify-between items-center">
+        <h1 class="text-2xl font-bold">Campus360 <br> <span class="ml-3">Admin Panel</span></h1>
+        <ul class="flex space-x-4">
+          <li><a href="transport.html" class="hover:text-gray-300">View Transport</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Admin Transport Management -->
+    <section class="container mx-auto pt-24 pb-10 px-4">
+      <div class="bg-[#5800ff] bg-opacity-75 p-8 rounded-lg animate-fade-in-up">
+        <h2 class="text-4xl font-bold mb-8 text-center">Transport Management</h2>
+        
+        <!-- Bus Routes Management -->
+        <div class="mb-12">
+          <h3 class="text-2xl font-semibold mb-4">🚌 Manage Bus Routes</h3>
+          <div class="bg-white bg-opacity-10 p-6 rounded-lg">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Add New Route -->
+              <div>
+                <h4 class="text-xl font-medium mb-3">Add New Route</h4>
+                <form id="addRouteForm" class="space-y-3">
+                  <div>
+                    <label class="block mb-1">Route Name</label>
+                    <input type="text" id="routeName" class="input input-bordered w-full text-gray-800" required>
+                  </div>
+                  <div>
+                    <label class="block mb-1">Stops (comma separated)</label>
+                    <textarea id="routeStops" class="textarea textarea-bordered w-full text-gray-800" required></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Add Route</button>
+                </form>
+              </div>
+              
+              <!-- Existing Routes -->
+              <div>
+                <h4 class="text-xl font-medium mb-3">Existing Routes</h4>
+                <div class="max-h-60 overflow-y-auto">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Route</th>
+                        <th>Stops</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="routesList">
+                      <!-- Routes will be loaded here -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Bus Schedule Management -->
+        <div class="mb-12">
+          <h3 class="text-2xl font-semibold mb-4">⏰ Manage Bus Schedules</h3>
+          <div class="bg-white bg-opacity-10 p-6 rounded-lg">
+            <form id="addScheduleForm" class="space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label class="block mb-1">Select Route</label>
+                  <select id="scheduleRoute" class="select select-bordered w-full text-gray-800" required>
+                    <!-- Routes will be loaded here -->
+                  </select>
+                </div>
+                <div>
+                  <label class="block mb-1">Departure Time</label>
+                  <input type="time" id="departureTime" class="input input-bordered w-full text-gray-800" required>
+                </div>
+                <div>
+                  <label class="block mb-1">Arrival Time</label>
+                  <input type="time" id="arrivalTime" class="input input-bordered w-full text-gray-800" required>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block mb-1">Driver Name</label>
+                  <input type="text" id="driverName" class="input input-bordered w-full text-gray-800" required>
+                </div>
+                <div>
+                  <label class="block mb-1">Driver Contact</label>
+                  <input type="text" id="driverContact" class="input input-bordered w-full text-gray-800" required>
+                </div>
+              </div>
+              <div>
+                <label class="block mb-1">Initial Available Seats</label>
+                <input type="number" id="availableSeats" class="input input-bordered w-full text-gray-800" required>
+              </div>
+              <button type="submit" class="btn btn-primary">Add Schedule</button>
+            </form>
+            
+            <div class="mt-8">
+              <h4 class="text-xl font-medium mb-3">Current Schedules</h4>
+              <div class="overflow-x-auto">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Bus</th>
+                      <th>Route</th>
+                      <th>Departure</th>
+                      <th>Arrival</th>
+                      <th>Driver</th>
+                      <th>Seats</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="schedulesList">
+                    <!-- Schedules will be loaded here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Live Bus Tracking Management -->
+        <div>
+          <h3 class="text-2xl font-semibold mb-4">📍 Live Bus Tracking</h3>
+          <div class="bg-white bg-opacity-10 p-6 rounded-lg">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h4 class="text-xl font-medium mb-3">Update Bus Locations</h4>
+                <form id="updateLocationForm" class="space-y-3">
+                  <div>
+                    <label class="block mb-1">Select Bus</label>
+                    <select id="busSelect" class="select select-bordered w-full text-gray-800" required>
+                      <!-- Buses will be loaded here -->
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block mb-1">Current Location</label>
+                    <input type="text" id="busLocation" class="input input-bordered w-full text-gray-800" required>
+                  </div>
+                  <div>
+                    <label class="block mb-1">Status</label>
+                    <select id="busStatus" class="select select-bordered w-full text-gray-800" required>
+                      <option value="On Route">On Route</option>
+                      <option value="Delayed">Delayed</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Update Location</button>
+                </form>
+              </div>
+              <div>
+                <h4 class="text-xl font-medium mb-3">Current Bus Status</h4>
+                <div class="overflow-x-auto">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Bus</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="busStatusList">
+                      <!-- Bus statuses will be loaded here -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Initialize data in localStorage if not exists
+      if (!localStorage.getItem('transportData')) {
+        const initialData = {
+          routes: [
+            { id: 1, name: "Route A", stops: "Shewrapara, Mirpur-10, Mirpur-11, Mirpur-12, Kalshi, ECB Chottor, Kuril, Kanchon" },
+            { id: 2, name: "Route B", stops: "Shewrapara, Mirpur-10, Mirpur-11, Kalshi, Kuril, Kanchon" }
+          ],
+          schedules: [
+            { 
+              id: 1, 
+              bus: "Bus 1", 
+              routeId: 1, 
+              departure: "08:00", 
+              arrival: "09:45", 
+              driver: "Driver A", 
+              contact: "016123123123", 
+              seats: 30,
+              status: "On Route"
+            },
+            { 
+              id: 2, 
+              bus: "Bus 2", 
+              routeId: 2, 
+              departure: "08:15", 
+              arrival: "09:15", 
+              driver: "Driver B", 
+              contact: "01712312132", 
+              seats: 30,
+              status: "Delayed"
+            }
+          ],
+          busLocations: [
+            { busId: 1, location: "Mirpur-11", status: "On Route" },
+            { busId: 2, location: "Mirpur-10", status: "Delayed" }
+          ]
+        };
+        localStorage.setItem('transportData', JSON.stringify(initialData));
+      }
+
+      // Load all data
+      loadRoutes();
+      loadSchedules();
+      loadBusStatus();
+
+      // Add Route Form
+      document.getElementById('addRouteForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const routeName = document.getElementById('routeName').value;
+        const routeStops = document.getElementById('routeStops').value;
+        
+        const transportData = JSON.parse(localStorage.getItem('transportData'));
+        const newId = transportData.routes.length > 0 ? 
+          Math.max(...transportData.routes.map(r => r.id)) + 1 : 1;
+        
+        transportData.routes.push({
+          id: newId,
+          name: routeName,
+          stops: routeStops
+        });
+        
+        localStorage.setItem('transportData', JSON.stringify(transportData));
+        loadRoutes();
+        document.getElementById('addRouteForm').reset();
+      });
+
+      // Add Schedule Form
+      document.getElementById('addScheduleForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const routeId = parseInt(document.getElementById('scheduleRoute').value);
+        const departureTime = document.getElementById('departureTime').value;
+        const arrivalTime = document.getElementById('arrivalTime').value;
+        const driverName = document.getElementById('driverName').value;
+        const driverContact = document.getElementById('driverContact').value;
+        const availableSeats = parseInt(document.getElementById('availableSeats').value);
+        
+        const transportData = JSON.parse(localStorage.getItem('transportData'));
+        const route = transportData.routes.find(r => r.id === routeId);
+        const newId = transportData.schedules.length > 0 ? 
+          Math.max(...transportData.schedules.map(s => s.id)) + 1 : 1;
+        
+        transportData.schedules.push({
+          id: newId,
+          bus: `Bus ${newId}`,
+          routeId: routeId,
+          routeName: route.name,
+          departure: departureTime,
+          arrival: arrivalTime,
+          driver: driverName,
+          contact: driverContact,
+          seats: availableSeats,
+          status: "On Route"
+        });
+        
+        // Add to bus locations
+        transportData.busLocations.push({
+          busId: newId,
+          location: route.stops.split(',')[0].trim(),
+          status: "On Route"
+        });
+        
+        localStorage.setItem('transportData', JSON.stringify(transportData));
+        loadSchedules();
+        loadBusStatus();
+        document.getElementById('addScheduleForm').reset();
+      });
+
+      // Update Location Form
+      document.getElementById('updateLocationForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const busId = parseInt(document.getElementById('busSelect').value);
+        const location = document.getElementById('busLocation').value;
+        const status = document.getElementById('busStatus').value;
+        
+        const transportData = JSON.parse(localStorage.getItem('transportData'));
+        const busLocation = transportData.busLocations.find(b => b.busId === busId);
+        
+        if (busLocation) {
+          busLocation.location = location;
+          busLocation.status = status;
+          
+          // Also update status in schedules
+          const schedule = transportData.schedules.find(s => s.id === busId);
+          if (schedule) {
+            schedule.status = status;
+          }
+        }
+        
+        localStorage.setItem('transportData', JSON.stringify(transportData));
+        loadBusStatus();
+        loadSchedules();
+        document.getElementById('updateLocationForm').reset();
+      });
+
+      // Load routes into dropdown and list
+      function loadRoutes() {
+        const transportData = JSON.parse(localStorage.getItem('transportData'));
+        const routesList = document.getElementById('routesList');
+        const scheduleRoute = document.getElementById('scheduleRoute');
+        
+        // Clear existing options
+        routesList.innerHTML = '';
+        scheduleRoute.innerHTML = '<option value="" disabled selected>Select a route</option>';
+        
+        transportData.routes.forEach(route => {
+          // Add to routes list
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${route.name}</td>
+            <td>${route.stops}</td>
+            <td><button class="btn btn-xs btn-error" onclick="deleteRoute(${route.id})">Delete</button></td>
+          `;
+          routesList.appendChild(row);
+          
+          // Add to schedule route dropdown
+          const option = document.createElement('option');
+          option.value = route.id;
+          option.textContent = route.name;
+          scheduleRoute.appendChild(option);
+        });
+      }
+
+      // Load schedules into list
+      function loadSchedules() {
+        const transportData = JSON.parse(localStorage.getItem('transportData'));
+        const schedulesList = document.getElementById('schedulesList');
+        const busSelect = document.getElementById('busSelect');
+        
+        // Clear existing options
+        schedulesList.innerHTML = '';
+        busSelect.innerHTML = '<option value="" disabled selected>Select a bus</option>';
+        
+        transportData.schedules.forEach(schedule => {
+          const route = transportData.routes.find(r => r.id === schedule.routeId);
+          
+          // Add to schedules list
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${schedule.bus}</td>
+            <td>${route ? route.name : 'N/A'}</td>
+            <td>${schedule.departure}</td>
+            <td>${schedule.arrival}</td>
+            <td>${schedule.driver} (${schedule.contact})</td>
+            <td>${schedule.seats}</td>
+            <td>
+              <button class="btn btn-xs btn-error" onclick="deleteSchedule(${schedule.id})">Delete</button>
+            </td>
+          `;
+          schedulesList.appendChild(row);
+          
+          // Add to bus select dropdown
+          const option = document.createElement('option');
+          option.value = schedule.id;
+          option.textContent = `${schedule.bus} - ${route ? route.name : 'N/A'}`;
+          busSelect.appendChild(option);
+        });
+      }
+
+      // Load bus status into list
+      function loadBusStatus() {
+        const transportData = JSON.parse(localStorage.getItem('transportData'));
+        const busStatusList = document.getElementById('busStatusList');
+        
+        // Clear existing options
+        busStatusList.innerHTML = '';
+        
+        transportData.busLocations.forEach(busLoc => {
+          const schedule = transportData.schedules.find(s => s.id === busLoc.busId);
+          if (schedule) {
+            const route = transportData.routes.find(r => r.id === schedule.routeId);
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${schedule.bus} (${route ? route.name : 'N/A'})</td>
+              <td>${busLoc.location}</td>
+              <td>
+                <span class="badge ${getStatusBadgeClass(busLoc.status)}">
+                  ${busLoc.status}
+                </span>
+              </td>
+            `;
+            busStatusList.appendChild(row);
+          }
+        });
+      }
+
+      // Helper function to get badge class based on status
+      function getStatusBadgeClass(status) {
+        switch(status) {
+          case 'On Route': return 'badge-success';
+          case 'Delayed': return 'badge-warning';
+          case 'Cancelled': return 'badge-error';
+          default: return 'badge-info';
+        }
+      }
+    });
+
+    // Global functions for delete actions
+    function deleteRoute(routeId) {
+      const transportData = JSON.parse(localStorage.getItem('transportData'));
+      transportData.routes = transportData.routes.filter(r => r.id !== routeId);
+      localStorage.setItem('transportData', JSON.stringify(transportData));
+      
+      // Reload data
+      document.getElementById('routesList').innerHTML = '';
+      document.getElementById('scheduleRoute').innerHTML = '<option value="" disabled selected>Select a route</option>';
+      document.dispatchEvent(new Event('DOMContentLoaded'));
+    }
+
+    function deleteSchedule(scheduleId) {
+      const transportData = JSON.parse(localStorage.getItem('transportData'));
+      transportData.schedules = transportData.schedules.filter(s => s.id !== scheduleId);
+      transportData.busLocations = transportData.busLocations.filter(b => b.busId !== scheduleId);
+      localStorage.setItem('transportData', JSON.stringify(transportData));
+      
+      // Reload data
+      document.getElementById('schedulesList').innerHTML = '';
+      document.getElementById('busStatusList').innerHTML = '';
+      document.dispatchEvent(new Event('DOMContentLoaded'));
+    }
+  </script>
+</body>
+
+</html>

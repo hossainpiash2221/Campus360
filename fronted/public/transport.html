@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campus360 - Transport</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.23/dist/full.min.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Load transport data from localStorage
+      const transportData = JSON.parse(localStorage.getItem('transportData')) || {
+        routes: [],
+        schedules: [],
+        busLocations: []
+      };
+
+      // Update available seats display with random data
+      function updateSeatAvailability() {
+        const transportStatus = document.getElementById("transport-status");
+        if (transportStatus) {
+          const totalSeats = transportData.schedules.reduce((sum, schedule) => sum + schedule.seats, 0);
+          const availableSeats = Math.floor(Math.random() * totalSeats) + 1;
+          transportStatus.textContent = `Available bus seats: ${availableSeats}`;
+        }
+      }
+
+      // Initial update
+      updateSeatAvailability();
+      
+      // Update every 5 seconds
+      setInterval(updateSeatAvailability, 5000);
+
+      // Load bus tracking modal with real data
+      document.querySelector('[onclick="document.getElementById(\'busMapModal\').showModal()"]')?.addEventListener('click', function() {
+        loadBusTrackingModal();
+      });
+
+      // Load schedule modal with real data
+      document.querySelector('[onclick="document.getElementById(\'scheduleModal\').showModal()"]')?.addEventListener('click', function() {
+        loadScheduleModal();
+      });
+    });
+
+    function loadBusTrackingModal() {
+      const transportData = JSON.parse(localStorage.getItem('transportData')) || {
+        routes: [],
+        schedules: [],
+        busLocations: []
+      };
+
+      // Update bus seats in modal
+      transportData.schedules.forEach(schedule => {
+        const seatsElement = document.getElementById(`seats-bus${schedule.id}`);
+        if (seatsElement) {
+          seatsElement.textContent = Math.floor(Math.random() * schedule.seats) + 1;
+        }
+
+        const etaElement = document.getElementById(`eta-bus${schedule.id}`);
+        if (etaElement) {
+          etaElement.textContent = (Math.floor(Math.random() * 15) + 5) + " mins";
+        }
+      });
+
+      // Set up filter functionality
+      const filters = {
+        route: document.getElementById("routeFilter"),
+        time: document.getElementById("timeFilter"),
+        driver: document.getElementById("driverFilter")
+      };
+
+      const busCards = document.querySelectorAll("#busContainer > div");
+
+      function applyFilters() {
+        const route = filters.route.value;
+        const time = filters.time.value;
+        const driver = filters.driver.value;
+
+        busCards.forEach(card => {
+          const matchesRoute = route === "all" || card.dataset.route === route;
+          const matchesTime = time === "all" || card.dataset.time === time;
+          const matchesDriver = driver === "all" || card.dataset.driver === driver;
+
+          card.style.display = matchesRoute && matchesTime && matchesDriver ? "block" : "none";
+        });
+      }
+
+      if (filters.route) filters.route.addEventListener("change", applyFilters);
+      if (filters.time) filters.time.addEventListener("change", applyFilters);
+      if (filters.driver) filters.driver.addEventListener("change", applyFilters);
+    }
+
+    function loadScheduleModal() {
+      const transportData = JSON.parse(localStorage.getItem('transportData')) || {
+        routes: [],
+        schedules: [],
+        busLocations: []
+      };
+
+      // Populate schedule table
+      const scheduleTable = document.querySelector('#scheduleModal tbody');
+      if (scheduleTable) {
+        scheduleTable.innerHTML = '';
+        
+        transportData.schedules.forEach(schedule => {
+          const route = transportData.routes.find(r => r.id === schedule.routeId);
+          const busLocation = transportData.busLocations.find(b => b.busId === schedule.id);
+          
+          if (route) {
+            const stops = route.stops.split(',').map(s => s.trim());
+            const steps = stops.map((stop, index) => {
+              const isCompleted = busLocation && stops.indexOf(busLocation.location) >= index;
+              return `<li class="step ${isCompleted ? 'step-primary' : ''}" data-content="${schedule.departure}">${stop}</li>`;
+            }).join('');
+            
+            const row = document.createElement('tr');
+            row.className = busLocation?.status === 'Cancelled' ? 'hover bg-red-100' : 
+                           busLocation?.status === 'Delayed' ? 'hover bg-yellow-100' : 'hover bg-green-100';
+            
+            row.innerHTML = `
+              <td>${schedule.bus}</td>
+              <td>${route.name}</td>
+              <td>${schedule.departure}</td>
+              <td>${schedule.arrival}</td>
+              <td>${schedule.contact}</td>
+              <td>
+                <span class="badge ${getStatusBadgeClass(schedule.status)}">
+                  ${schedule.status}
+                </span>
+              </td>
+              <td><span class="font-bold ${schedule.status === 'Cancelled' ? 'text-gray-500' : 'text-green-700'}">
+                ${schedule.status === 'Cancelled' ? '0' : Math.floor(Math.random() * schedule.seats) + 1}
+              </span></td>
+              <td>
+                <ul class="steps">
+                  ${steps}
+                  <li class="step" data-content="${schedule.arrival}">Reached</li>
+                </ul>
+              </td>
+            `;
+            scheduleTable.appendChild(row);
+          }
+        });
+      }
+    }
+
+    function getStatusBadgeClass(status) {
+      switch(status) {
+        case 'On Route': return 'badge-success';
+        case 'Delayed': return 'badge-warning';
+        case 'Cancelled': return 'badge-error';
+        default: return 'badge-info';
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-[#5800ff] text-white">
+  <div class=" bg-[url('bus_background.png')] bg-fixed bg-cover bg-center">
+    <!-- Navbar -->
+    <div class="bg-[#5800ff] bg-opacity-75 fixed w-full z-40  shadow-md">
+      <nav class="container mx-auto p-4 flex justify-evenly items-center">
+        <h1 class="text-2xl font-bold hover:clickable">Campus360 <br> <span class="ml-3">Solution</span></h1>
+        <ul class="flex space-x-4">
+          <li><a href="index.html" class="hover:text-gray-300">Home</a></li>
+          <li><a href="cafeteria.html" class="hover:text-gray-300">Cafeteria</a></li>
+          <li><a href="trackBus.html" class="hover:text-gray-300">Transport</a></li>
+          <li><a href="clubs.html" class="hover:text-gray-300">Clubs</a></li>
+          <li><a href="communication.html" class="hover:text-gray-300">Communication Hub</a></li>
+        </ul>
+        <div class="flex space-x-4">
+          <button><img class="w-6" src="search.png" alt="Search" /></button>
+          <button>Login</button>
+          <button class="btn btn-outline glass text-white">Register Now</button>
+        </div>
+      </nav>
+    </div>
+
+    <!-- Transport Overview -->
+    <section class="h-screen flex items-center justify-center text-center">
+      <div class="bg-[#5800ff] bg-opacity-75 p-10 rounded-lg animate-fade-in-up">
+        <h2 class="text-4xl font-bold">University Transport Management</h2>
+        <p class="mt-4 text-xl">Track bus availability, schedules, and student polls.</p>
+        <p id="transport-status" class="mt-4 text-grey-300 text-2xl font-semibold">Loading seat availability...</p>
+        <a href="#features"
+          class="mt-6 inline-block px-6 py-3 bg-blue-500 hover:bg-blue-700 rounded-lg text-white">Explore Features</a>
+      </div>
+    </section>
+
+    <style>
+      @keyframes fade-in-up {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .animate-fade-in-up {
+        animation: fade-in-up 0.8s ease-out forwards;
+      }
+      
+      .steps .step:after {
+        width: 3rem;
+      }
+    </style>
+
+    <!-- Feature Cards -->
+    <section id="features" class=" mx-auto p-10 bg-[#5800ff] bg-opacity-75">
+      <h4 class="text-4xl font-bold text-center mb-10">Transport Features</h4>
+      <div class="flex flex-wrap gap-8 justify-center">
+        <!-- Track Bus Feature -->
+        <div class="card glass w-80">
+          <figure><img src="bustrack.png" alt="Track Bus" class="h-72  w-full object-cover" /></figure>
+          <div class="card-body">
+            <h2 class="card-title">Track Bus</h2>
+            <p>Monitor real-time location of buses with live GPS updates.</p>
+            <div class="card-actions justify-end">
+              <button class="btn btn-primary" onclick="document.getElementById('busMapModal').showModal()">Track Now</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal for Bus Tracking -->
+        <dialog id="busMapModal" class="modal text-blue-300  ">
+          <div class="modal-box w-11/12 max-w-5xl bg-[#5800ff] glass text-white">
+            <h3 class="font-bold text-lg mb-4">Live Bus Map</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div>
+                <label for="routeFilter" class="block mb-2 font-semibold">Filter by Route:</label>
+                <select id="routeFilter" class="select select-bordered w-full text-gray-600">
+                  <option selected value="all">All</option>
+                  <option value="routeA">Route A</option>
+                  <option value="routeB">Route B</option>
+                </select>
+              </div>
+              <div>
+                <label for="timeFilter" class="block mb-2 font-semibold">Filter by Time Slot:</label>
+                <select id="timeFilter" class="select select-bordered w-full text-gray-600">
+                  <option selected value="all">All</option>
+                  <option value="morning">Morning</option>
+                  <option value="afternoon">Afternoon</option>
+                  <option value="evening">Evening</option>
+                </select>
+              </div>
+              <div>
+                <label for="driverFilter" class="block mb-2 font-semibold">Filter by Destination:</label>
+                <select id="driverFilter" class="select select-bordered w-full text-gray-600">
+                  <option selected value="all">All</option>
+                  <option value="driverA">Shewrapara</option>
+                  <option value="driverB">Mirpur-10</option>
+                  <option value="driverB">Mirpur-11</option>
+                  <option value="driverB">Mirpur-12</option>
+                  <option value="driverB">Kalshi</option>
+                  <option value="driverB">kuril</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Combined Multi-Bus Map Display -->
+            <div class="mb-6">
+              <h4 class="text-md font-semibold mb-2">🗺️ Combined Map - All Active Buses</h4>
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3650.301392688748!2d90.4056!3d23.8321!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjPCsDQ5JzU1LjYiTiA5MMKwMjQnMjAuMCJF!5e0!3m2!1sen!2sbd!4v1714000000001!5m2!1sen!2sbd"
+                width="100%" height="250" class="rounded border border-gray-300" allowfullscreen="" loading="lazy">
+              </iframe>
+            </div>
+
+            <div id="busContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Bus 1 -->
+              <div data-route="routeA" data-time="morning" data-driver="driverA">
+                <h4 class="text-md font-semibold mb-1 flex justify-between">
+                  <span>🚌 Bus 1 - Route A</span>
+                  <span class="badge badge-success">On Route</span>
+                </h4>
+                <p class="text-sm mb-2">Available Seats: <span id="seats-bus1">Loading...</span></p>
+                <p class="text-sm mb-2">ETA: <span id="eta-bus1">Calculating...</span></p>
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3650.301392688748!2d90.4056!3d23.8321!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjPCsDQ5JzU1LjYiTiA5MMKwMjQnMjAuMCJF!5e0!3m2!1sen!2sbd!4v1714000000001!5m2!1sen!2sbd"
+                  width="100%" height="250" class="rounded border border-gray-300" allowfullscreen="" loading="lazy">
+                </iframe>
+              </div>
+
+              <!-- Bus 2 -->
+              <div data-route="routeB" data-time="evening" data-driver="driverB">
+                <h4 class="text-md font-semibold mb-1 flex justify-between">
+                  <span>🚌 Bus 2 - Route B</span>
+                  <span class="badge badge-warning">Delayed</span>
+                </h4>
+                <p class="text-sm mb-2">Available Seats: <span id="seats-bus2">Loading...</span></p>
+                <p class="text-sm mb-2">ETA: <span id="eta-bus2">Calculating...</span></p>
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3650.301392688748!2d90.4056!3d23.8321!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjPCsDQ5JzU1LjYiTiA5MMKwMjQnMjAuMCJF!5e0!3m2!1sen!2sbd!4v1714000000001!5m2!1sen!2sbd"
+                  width="100%" height="250" class="rounded border border-gray-300" allowfullscreen="" loading="lazy">
+                </iframe>
+              </div>
+            </div>
+
+            <div class="modal-action mt-6">
+              <form method="dialog">
+                <button class="btn">Close</button>
+              </form>
+            </div>
+          </div>
+        </dialog>
+
+        <div class="card glass w-80">
+          <figure><img src="schedule.png" alt="Bus Schedule" class="h-72 w-full object-cover" /></figure>
+          <div class="card-body">
+            <h2 class="card-title">Bus Schedule</h2>
+            <p>View current and upcoming transport schedules organized by routes and times.</p>
+            <div class="card-actions justify-end">
+              <button class="btn btn-primary" onclick="document.getElementById('scheduleModal').showModal()">View Schedule</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal for Bus Schedule -->
+        <dialog id="scheduleModal" class="container rounded-lg ">
+          <div class=" w-full p-2 bg-[#5800ff] glass  w-full">
+            <h2 class="text-4xl font-bold text-center text-white mb-8">🗓️ Bus Schedule</h2>
+
+            <!-- Location Input -->
+            <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block font-semibold mb-1 text-white">Your Pickup Location:</label>
+                <select class="select select-bordered w-full">
+                  <option disabled selected>Select your pickup location</option>
+                  <option>Shewrapara</option>
+                  <option>Mipur-10</option>
+                  <option>Mirpur-11</option>
+                  <option>Mirpur-12</option>
+                  <option>Kalshi</option>
+                  <option>ECB Chottor</option>
+                  <option>Kuril</option>
+                  <option>Kanchon</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold mb-1 text-white">Preferred Time:</label>
+                <input type="time" class="input input-bordered w-full" />
+              </div>
+            </div>
+
+            <div class="overflow-x-auto p-5 ">
+              <table class="table w-full border rounded-lg shadow-md ">
+                <thead class="bg-[#5800ff] text-white">
+                  <tr>
+                    <th>Bus</th>
+                    <th>Route</th>
+                    <th>Departure</th>
+                    <th>Arrival</th>
+                    <th>Driver Number</th>
+                    <th>Status</th>
+                    <th>Available Seats</th>
+                    <th>Path</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-blue-100">
+                  <!-- Data will be loaded dynamically -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="modal-action mt-6">
+              <form method="dialog">
+                <button class="btn">Close</button>
+              </form>
+            </div>
+          </div>
+        </dialog>
+
+        <div class="card glass w-80">
+          <figure><img src="transportPoll.png" alt="Transport Poll" class="h-72 w-full object-cover" /></figure>
+          <div class="card-body">
+            <h2 class="card-title">Transport Poll</h2>
+            <p>Participate in polls to help optimize transport resources based on student demand.</p>
+            <div class="card-actions justify-end">
+              <button class="btn btn-primary">Vote Now</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <hr class="mt-10">
+    <section class="container mx-auto">
+      <footer class="footer text-white p-10 justify-evenly">
+        <nav>
+          <h6 class="footer-title">Services</h6>
+          <a class="link link-hover">Branding</a>
+          <a class="link link-hover">Design</a>
+          <a class="link link-hover">Marketing</a>
+          <a class="link link-hover">Advertisement</a>
+        </nav>
+        <nav>
+          <h6 class="footer-title">Company</h6>
+          <a class="link link-hover">About us</a>
+          <a class="link link-hover">Contact</a>
+          <a class="link link-hover">Jobs</a>
+          <a class="link link-hover">Press kit</a>
+        </nav>
+        <nav>
+          <h6 class="footer-title">Legal</h6>
+          <a class="link link-hover">Terms of use</a>
+          <a class="link link-hover">Privacy policy</a>
+          <a class="link link-hover">Cookie policy</a>
+        </nav>
+      </footer>
+      <footer class="footer  border-base-300 border-t px-10 py-4">
+        <aside class="grid-flow-col items-center">
+          <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd"
+            clip-rule="evenodd" class="fill-current">
+            <path
+              d="M22.672 15.226l-2.432.811.841 2.515c.33 1.019-.209 2.127-1.23 2.456-1.15.325-2.148-.321-2.463-1.226l-.84-2.518-5.013 1.677.84 2.517c.391 1.203-.434 2.542-1.831 2.542-.88 0-1.601-.564-1.86-1.314l-.842-2.516-2.431.809c-1.135.328-2.145-.317-2.463-1.229-.329-1.018.211-2.127 1.231-2.456l2.432-.809-1.621-4.823-2.432.808c-1.355.384-2.558-.59-2.558-1.839 0-.817.509-1.582 1.327-1.846l2.433-.809-.842-2.515c-.33-1.02.211-2.129 1.232-2.458 1.02-.329 2.13.209 2.461 1.229l.842 2.515 5.011-1.677-.839-2.517c-.403-1.238.484-2.553 1.843-2.553.819 0 1.585.509 1.85 1.326l.841 2.517 2.431-.81c1.02-.33 2.131.211 2.461 1.229.332 1.018-.21 2.126-1.23 2.456l-2.433.809 1.622 4.823 2.433-.809c1.242-.401 2.557.484 2.557 1.838 0 .819-.51 1.583-1.328 1.847m-8.992-6.428l-5.01 1.675 1.619 4.828 5.011-1.674-1.62-4.829z">
+            </path>
+          </svg>
+          <p>
+            ACME Industries Ltd.
+            <br />
+            Providing reliable tech since 1992
+          </p>
+        </aside>
+        <nav class="md:place-self-center md:justify-self-end">
+          <div class="grid grid-flow-col gap-4">
+            <a>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-current">
+                <path
+                  d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z">
+                </path>
+              </svg>
+            </a>
+            <a>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-current">
+                <path
+                  d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z">
+                </path>
+              </svg>
+            </a>
+            <a>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-current">
+                <path
+                  d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z">
+                </path>
+              </svg>
+            </a>
+          </div>
+        </nav>
+      </footer>
+    </section>
+  </div>
+</body>
+
+</html>
