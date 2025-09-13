@@ -1,7 +1,7 @@
 # Campus360 Solution
 
 ## Project Overview
-Campus Dot is a comprehensive campus management system designed to facilitate various campus activities including reservations, cafeteria services, transportation tracking, and administrative functions. The system provides a user-friendly interface for students, staff, and administrators to interact with campus resources efficiently.
+Campus360 is a comprehensive campus management system designed to facilitate various campus activities including reservations, cafeteria services, transportation tracking, and administrative functions. The system provides a user-friendly interface for students, staff, and administrators to interact with campus resources efficiently.
 
 ## Features
 - **User Authentication**: Secure login system for different user roles (students, staff, teachers, admins)
