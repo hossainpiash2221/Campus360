@@ -126,15 +126,4 @@ The frontend will be available at `http://localhost:5174` and the backend at `ht
    - Transport: Track buses and participate in polls
    - Admin: Manage system (admin access required)
 
-## Contributing
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
 
-## License
-This project is licensed under the ISC License.
-
-## Contact
-For questions or support, please contact the development team.
